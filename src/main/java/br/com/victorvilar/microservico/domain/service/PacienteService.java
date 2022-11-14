@@ -1,6 +1,7 @@
 package br.com.victorvilar.microservico.domain.service;
 
 import br.com.victorvilar.microservico.domain.entity.Paciente;
+import br.com.victorvilar.microservico.domain.exception.BusinessException;
 import br.com.victorvilar.microservico.domain.repository.PacienteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,14 @@ public class PacienteService {
     private final PacienteRepository repository;
 
     public Paciente salvar(Paciente paciente){
+
+       Optional<Paciente> cpf = repository.findByCpf(paciente.getCpf());
+        if(cpf.isPresent()){
+            throw new BusinessException("Paciente já registrado !!");
+        }
         return this.repository.save(paciente);
-        //TODO VALIDAR SE O CPF JA EXISTE
+
+
     }
 
     public void deletar(Long id){
