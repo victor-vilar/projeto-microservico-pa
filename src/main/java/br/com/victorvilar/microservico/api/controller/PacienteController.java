@@ -22,17 +22,18 @@ public class PacienteController {
 
     @Autowired
     private final PacienteService service;
+    private final PacienteMapper pacienteMapper;
 
     @PostMapping
     public ResponseEntity<PacienteResponse> salvar(@RequestBody PacienteRequest pacienteRequest){
-        Paciente pacienteSalvo = PacienteMapper.toPaciente(pacienteRequest);
-        PacienteResponse pacienteResponse = PacienteMapper.toPacienteResponse(service.salvar(pacienteSalvo));
+        Paciente pacienteSalvo = pacienteMapper.toPaciente(pacienteRequest);
+        PacienteResponse pacienteResponse = pacienteMapper.toPacienteResponse(service.salvar(pacienteSalvo));
         return ResponseEntity.status(HttpStatus.CREATED).body(pacienteResponse);
     }
 
     @GetMapping
     public ResponseEntity<List<PacienteResponse>> buscarTodos(){
-        List<PacienteResponse> listaPaciente = PacienteMapper.toPacienteResponseList(service.listarTodos());
+        List<PacienteResponse> listaPaciente = pacienteMapper.toPacienteResponseList(service.listarTodos());
         return ResponseEntity.status(HttpStatus.OK).body(listaPaciente);
     }
 
@@ -40,7 +41,7 @@ public class PacienteController {
     public ResponseEntity<?> buscarPorId(@PathVariable Long id){
         Optional<Paciente> paciente = service.buscarPorId(id);
         if(paciente.isPresent()){
-            return ResponseEntity.status(HttpStatus.FOUND).body(PacienteMapper.toPacienteResponse(paciente.get()));
+            return ResponseEntity.status(HttpStatus.FOUND).body(pacienteMapper.toPacienteResponse(paciente.get()));
         }else{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("");
         }
@@ -48,8 +49,8 @@ public class PacienteController {
 
     @PutMapping("/{id}")
     public ResponseEntity<PacienteResponse> alterar(@RequestBody PacienteRequest paciente, @PathVariable Long id){
-        Paciente pacienteSalvo = service.alterar(PacienteMapper.toPaciente(paciente), id);
-        return ResponseEntity.status(HttpStatus.OK).body(PacienteMapper.toPacienteResponse(pacienteSalvo));
+        Paciente pacienteSalvo = service.alterar(pacienteMapper.toPaciente(paciente), id);
+        return ResponseEntity.status(HttpStatus.OK).body(pacienteMapper.toPacienteResponse(pacienteSalvo));
     }
 
     @DeleteMapping("/{id}")
