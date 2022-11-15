@@ -30,6 +30,16 @@ public class PacienteService {
 
     }
 
+    public Paciente alterar(Paciente paciente, Long id){
+        if(repository.findById(id).isPresent()){
+            paciente.setId(repository.findById(id).get().getId());
+            repository.save(paciente);
+
+        };
+        return paciente;
+    }
+
+
     public void deletar(Long id){
         repository.deleteById(id);
     }

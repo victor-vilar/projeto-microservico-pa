@@ -1,5 +1,8 @@
 package br.com.victorvilar.microservico.api.controller;
 
+import br.com.victorvilar.microservico.api.mapper.PacienteMapper;
+import br.com.victorvilar.microservico.api.request.PacienteRequest;
+import br.com.victorvilar.microservico.api.response.PacienteResponse;
 import br.com.victorvilar.microservico.domain.entity.Paciente;
 import br.com.victorvilar.microservico.domain.service.PacienteService;
 import lombok.RequiredArgsConstructor;
@@ -21,14 +24,15 @@ public class PacienteController {
     private final PacienteService service;
 
     @PostMapping
-    public ResponseEntity<Paciente> salvar(@RequestBody Paciente paciente){
-     Paciente pacienteSalvo = service.salvar(paciente);
-        return ResponseEntity.status(HttpStatus.CREATED).body(pacienteSalvo);
+    public ResponseEntity<PacienteResponse> salvar(@RequestBody PacienteRequest pacienteRequest){
+        Paciente pacienteSalvo = PacienteMapper.toPaciente(pacienteRequest);
+        PacienteResponse pacienteResponse = PacienteMapper.toPacienteResponse(service.salvar(pacienteSalvo));
+        return ResponseEntity.status(HttpStatus.CREATED).body(pacienteResponse);
     }
 
     @GetMapping
-    public ResponseEntity<List<Paciente>> buscarTodos(){
-        List<Paciente> listaPaciente = service.listarTodos();
+    public ResponseEntity<List<PacienteResponse>> buscarTodos(){
+        List<PacienteResponse> listaPaciente = PacienteMapper.toPacienteResponseList(service.listarTodos());
         return ResponseEntity.status(HttpStatus.OK).body(listaPaciente);
     }
 
@@ -36,10 +40,21 @@ public class PacienteController {
     public ResponseEntity<?> buscarPorId(@PathVariable Long id){
         Optional<Paciente> paciente = service.buscarPorId(id);
         if(paciente.isPresent()){
-            return ResponseEntity.status(HttpStatus.FOUND).body(paciente.get());
-
+            return ResponseEntity.status(HttpStatus.FOUND).body(PacienteMapper.toPacienteResponse(paciente.get()));
         }else{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("");
         }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PacienteResponse> alterar(@RequestBody PacienteRequest paciente, @PathVariable Long id){
+        Paciente pacienteSalvo = service.alterar(PacienteMapper.toPaciente(paciente), id);
+        return ResponseEntity.status(HttpStatus.OK).body(PacienteMapper.toPacienteResponse(pacienteSalvo));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id){
+        service.deletar(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
